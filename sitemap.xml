@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/</loc>
+    
+    <lastmod>2018-03-15T09:13:02.829Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://lili21.github.io/2016/06/24/webpack-config-for-angular/</loc>
     
-    <lastmod>2018-03-15T07:40:17.184Z</lastmod>
+    <lastmod>2018-03-15T07:54:29.525Z</lastmod>
     
   </url>
   
