@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="li.li">
 <meta property="og:description" content="webpack 4发布也有一段时间了，虽然官方的文档，升级指南都没有完成，部分插件适配webpack 4的开发也还在进行中，但对于一个资深前端配置工程师，大刀早已饥渴难耐，所以就出一份非官方升(cai)级(keng)指南吧。 我没时间看你废话，给我一份配置 webpack 4做了很多改进，我就挑一些我比较关心的点来展开 0CJS随着像parcel这样零配置，开箱即用打包工具的流行，被人吐槽难用，难">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-03-16T03:22:34.000Z">
+<meta property="og:updated_time" content="2018-03-21T05:21:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="webpack-4-upgrade-guide">
 <meta name="twitter:description" content="webpack 4发布也有一段时间了，虽然官方的文档，升级指南都没有完成，部分插件适配webpack 4的开发也还在进行中，但对于一个资深前端配置工程师，大刀早已饥渴难耐，所以就出一份非官方升(cai)级(keng)指南吧。 我没时间看你废话，给我一份配置 webpack 4做了很多改进，我就挑一些我比较关心的点来展开 0CJS随着像parcel这样零配置，开箱即用打包工具的流行，被人吐槽难用，难">
@@ -158,6 +158,8 @@
 <li><p><a href="mailto:extract-text-webpack-plugin@4.0.0-beta.0" target="_blank" rel="noopener">extract-text-webpack-plugin@4.0.0-beta.0</a></p>
 <p>  <a href="https://github.com/webpack-contrib/extract-text-webpack-plugin/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aopen+4.0.0-beta.0" target="_blank" rel="noopener">issue list</a> 可以看到，问题还是比较多的。<br>  我自己遇到的问题是，在配合<code>splitChunks</code>(后面会讲到)时，会生成0kb的css文件，<a href="https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/738" target="_blank" rel="noopener">issue</a>。<br>  对于这个问题，我已经提了<a href="https://github.com/webpack-contrib/extract-text-webpack-plugin/pull/746" target="_blank" rel="noopener">PR</a>了。</p>
 <p>  官方出了一个<a href="github.com/webpack-contrib/mini-css-extract-plugin">mini-css-extract-plugin</a>，但是这个问题更多，不支持HMR，不支持<code>contenthash</code>，所以目前基本没法用。</p>
+<p>  <strong>2018-03-21更新</strong></p>
+<p>  <a href="https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/749" target="_blank" rel="noopener">etwp决定不再支持webpack@4</a></p>
 </li>
 <li><p><a href="mailto:html-webpack-plugin@3.0.0" target="_blank" rel="noopener">html-webpack-plugin@3.0.0</a>+</p>
 <p>  这个插件目前是支持webpack 4的，只是他自己的插件不一定支持，这个在升级的时候需要注意</p>
