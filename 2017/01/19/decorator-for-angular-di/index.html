@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="依赖注入一直是angular为人称道的特性之一，在这里先简单介绍一下依赖注入的实现原理。 1234&#x2F;&#x2F; controller.jsfunction ctrl ($scope, ServiceA) &amp;#123;  ...&amp;#125; 依赖注入处理“三部曲” 通过调用ctrl.toString()讲函数转为字符串 通过正则获取函数的参数名 根据参数名获取相应的依赖">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用decorator解决angular依赖注入问题">
+<meta property="og:url" content="https://lili21.github.io/2017/01/19/decorator-for-angular-di/index.html">
+<meta property="og:site_name" content="li.li">
+<meta property="og:description" content="依赖注入一直是angular为人称道的特性之一，在这里先简单介绍一下依赖注入的实现原理。 1234&#x2F;&#x2F; controller.jsfunction ctrl ($scope, ServiceA) &amp;#123;  ...&amp;#125; 依赖注入处理“三部曲” 通过调用ctrl.toString()讲函数转为字符串 通过正则获取函数的参数名 根据参数名获取相应的依赖">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-01-19T03:18:40.000Z">
+<meta property="article:modified_time" content="2018-07-14T04:34:49.941Z">
+<meta property="article:author" content="li.li">
+<meta property="article:tag" content="decorator angular">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>利用decorator解决angular依赖注入问题</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="li.li" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2018/03/15/webpack-4-upgrade-guide/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2016/06/24/webpack-config-for-angular/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://lili21.github.io/2017/01/19/decorator-for-angular-di/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&text=利用decorator解决angular依赖注入问题"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&title=利用decorator解决angular依赖注入问题"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&is_video=false&description=利用decorator解决angular依赖注入问题"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=利用decorator解决angular依赖注入问题&body=Check out this article: https://lili21.github.io/2017/01/19/decorator-for-angular-di/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&title=利用decorator解决angular依赖注入问题"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&title=利用decorator解决angular依赖注入问题"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&title=利用decorator解决angular依赖注入问题"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&title=利用decorator解决angular依赖注入问题"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&name=利用decorator解决angular依赖注入问题&description=&lt;p&gt;依赖注入一直是&lt;code&gt;angular&lt;/code&gt;为人称道的特性之一，在这里先简单介绍一下依赖注入的实现原理。&lt;/p&gt;
+&lt;figure class=&#34;highlight javascript&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;comment&#34;&gt;// controller.js&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;function&#34;&gt;&lt;span class=&#34;keyword&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;title&#34;&gt;ctrl&lt;/span&gt; (&lt;span class=&#34;params&#34;&gt;$scope, ServiceA&lt;/span&gt;) &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;  ...&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&#34;依赖注入处理“三部曲”&#34;&gt;&lt;a href=&#34;#依赖注入处理“三部曲”&#34; class=&#34;headerlink&#34; title=&#34;依赖注入处理“三部曲”&#34;&gt;&lt;/a&gt;依赖注入处理“三部曲”&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;通过调用&lt;code&gt;ctrl.toString()&lt;/code&gt;讲函数转为字符串&lt;/li&gt;
+&lt;li&gt;通过正则获取函数的参数名&lt;/li&gt;
+&lt;li&gt;根据参数名获取相应的依赖&lt;/li&gt;
+&lt;/ol&gt;"><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&t=利用decorator解决angular依赖注入问题"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E5%A4%84%E7%90%86%E2%80%9C%E4%B8%89%E9%83%A8%E6%9B%B2%E2%80%9D"><span class="toc-number">1.</span> <span class="toc-text">依赖注入处理“三部曲”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Decorators"><span class="toc-number">2.</span> <span class="toc-text">Decorators</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        利用decorator解决angular依赖注入问题
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">li.li</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2017-01-19T03:18:40.000Z" itemprop="datePublished">2017-01-19</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/decorator-angular/" rel="tag">decorator angular</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>依赖注入一直是<code>angular</code>为人称道的特性之一，在这里先简单介绍一下依赖注入的实现原理。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// controller.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ctrl</span> (<span class="params">$scope, ServiceA</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="依赖注入处理“三部曲”"><a href="#依赖注入处理“三部曲”" class="headerlink" title="依赖注入处理“三部曲”"></a>依赖注入处理“三部曲”</h3><ol>
+<li>通过调用<code>ctrl.toString()</code>讲函数转为字符串</li>
+<li>通过正则获取函数的参数名</li>
+<li>根据参数名获取相应的依赖</li>
+</ol>
+<a id="more"></a>
+<p>像我们这样严肃的前端工程师，线上的代码肯定是有代码压缩过的。所有最后我们的代码可能变成</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// controller.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">a</span> (<span class="params">b, c</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为找不到<code>b</code>, <code>c</code>，<code>angular</code>就会报错。解决方式也很简单，</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 数组方式</span></span><br><span class="line">[<span class="string">'$scope'</span>, <span class="string">'ServiceA'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">$scope, ServiceA</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;]</span><br><span class="line"></span><br><span class="line"><span class="comment">// 添加$inject属性方式</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ctrl</span> (<span class="params">$scope, ServiceA</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ctrl.$inject = [<span class="string">'$scope'</span>, <span class="string">'ServiceA'</span>]</span><br></pre></td></tr></table></figure>
+<p>以上两种方式都可以解决代码压缩导致依赖注入不可用的问题。</p>
+<p>但在实际的项目中，每个地方都需要这么写有点boring。所以我们一般都会引入相应的工具帮助我们自动化这个过程。像<code>webpack</code>里<code>ng-annotate-loader</code>，<code>gulp</code>里的<code>gulp-ng-annotate</code>。FYI，这些工具都是依赖<a href="https://github.com/olov/ng-annotate" target="_blank" rel="noopener">ng-annotate</a>。</p>
+<p>工具的问题在于，依赖的更新会导致工具的不可用。比如最近我把<code>webpack</code>更新到了<code>2.0</code>，导致<code>ng-annotate-loader</code>了不可用。另一个问题是，很多时候我们会使用<code>class</code>，</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// controller.js</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ctrl</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span> (ServiceA, ServiceB, ServiceC, ...) &#123;</span><br><span class="line">    <span class="keyword">this</span>.sa = ServiceA</span><br><span class="line">    <span class="keyword">this</span>.sb = ServiceB</span><br><span class="line">    <span class="keyword">this</span>.sc = ServiceC</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们需要在<code>constructor</code>里将依赖绑在<code>this</code>上，当依赖变多的时候，每个地方都要这么写同样也很boring。这就是我们今天需要解决的问题。</p>
+<h3 id="Decorators"><a href="#Decorators" class="headerlink" title="Decorators"></a>Decorators</h3><p><code>decorator</code>是ES7中的特性，目前该提案处于<code>stage-2</code>。利用<code>babel</code>，我们今天就可以用了。废话不多说，直接上代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Inject(<span class="string">'ServiceA'</span>, <span class="string">'ServiceB'</span>, <span class="string">'ServiceC'</span>)</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ctrl</span> </span>&#123;</span><br><span class="line">  fetchData () &#123;</span><br><span class="line">    <span class="keyword">this</span>.ServiceA.fetch()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Inject</span> (<span class="params">...args</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params">target, key, descriptor</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> ctrl = <span class="function"><span class="keyword">function</span> (<span class="params">..._args</span>) </span>&#123;</span><br><span class="line">      args.forEach(<span class="function">(<span class="params">v, i</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>[v] = _args[i]</span><br><span class="line">      &#125;)</span><br><span class="line">      <span class="keyword">return</span> target.apply(<span class="keyword">this</span>, _args)</span><br><span class="line">    &#125;</span><br><span class="line">    ctrl.prototype = target.prototype</span><br><span class="line">    ctrl.$inject = args</span><br><span class="line">    <span class="keyword">return</span> ctrl</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>利用<code>decorator</code>，我们完美的解决这些问题。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E5%A4%84%E7%90%86%E2%80%9C%E4%B8%89%E9%83%A8%E6%9B%B2%E2%80%9D"><span class="toc-number">1.</span> <span class="toc-text">依赖注入处理“三部曲”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Decorators"><span class="toc-number">2.</span> <span class="toc-text">Decorators</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://lili21.github.io/2017/01/19/decorator-for-angular-di/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&text=利用decorator解决angular依赖注入问题"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&title=利用decorator解决angular依赖注入问题"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&is_video=false&description=利用decorator解决angular依赖注入问题"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=利用decorator解决angular依赖注入问题&body=Check out this article: https://lili21.github.io/2017/01/19/decorator-for-angular-di/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&title=利用decorator解决angular依赖注入问题"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&title=利用decorator解决angular依赖注入问题"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&title=利用decorator解决angular依赖注入问题"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&title=利用decorator解决angular依赖注入问题"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&name=利用decorator解决angular依赖注入问题&description=&lt;p&gt;依赖注入一直是&lt;code&gt;angular&lt;/code&gt;为人称道的特性之一，在这里先简单介绍一下依赖注入的实现原理。&lt;/p&gt;
+&lt;figure class=&#34;highlight javascript&#34;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&#34;gutter&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&#34;code&#34;&gt;&lt;pre&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;comment&#34;&gt;// controller.js&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;function&#34;&gt;&lt;span class=&#34;keyword&#34;&gt;function&lt;/span&gt; &lt;span class=&#34;title&#34;&gt;ctrl&lt;/span&gt; (&lt;span class=&#34;params&#34;&gt;$scope, ServiceA&lt;/span&gt;) &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;  ...&lt;/span&gt;&lt;br&gt;&lt;span class=&#34;line&#34;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&#34;依赖注入处理“三部曲”&#34;&gt;&lt;a href=&#34;#依赖注入处理“三部曲”&#34; class=&#34;headerlink&#34; title=&#34;依赖注入处理“三部曲”&#34;&gt;&lt;/a&gt;依赖注入处理“三部曲”&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;通过调用&lt;code&gt;ctrl.toString()&lt;/code&gt;讲函数转为字符串&lt;/li&gt;
+&lt;li&gt;通过正则获取函数的参数名&lt;/li&gt;
+&lt;li&gt;根据参数名获取相应的依赖&lt;/li&gt;
+&lt;/ol&gt;"><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://lili21.github.io/2017/01/19/decorator-for-angular-di/&t=利用decorator解决angular依赖注入问题"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    li.li
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

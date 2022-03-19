@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="2018-04-09更新mini-css-extract-plugin@^0.4.0支持了contenthash（需配合webpack@^4.3.0使用）。 2018-03-21更新 etwp决定不再支持webpack@4 webpack 4发布也有一段时间了，虽然官方的文档，升级指南都没有完成，部分插件适配webpack 4的开发也还在进行中，但对于一个资深前端配置工程师，大刀早已饥渴难耐，所以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="webpack-4-upgrade-guide">
+<meta property="og:url" content="https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/index.html">
+<meta property="og:site_name" content="li.li">
+<meta property="og:description" content="2018-04-09更新mini-css-extract-plugin@^0.4.0支持了contenthash（需配合webpack@^4.3.0使用）。 2018-03-21更新 etwp决定不再支持webpack@4 webpack 4发布也有一段时间了，虽然官方的文档，升级指南都没有完成，部分插件适配webpack 4的开发也还在进行中，但对于一个资深前端配置工程师，大刀早已饥渴难耐，所以">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-03-15T07:53:33.000Z">
+<meta property="article:modified_time" content="2018-07-14T04:34:49.943Z">
+<meta property="article:author" content="li.li">
+<meta property="article:tag" content="webpack">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>webpack-4-upgrade-guide</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="li.li" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2018/07/14/webpack-hash/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2017/01/19/decorator-for-angular-di/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&text=webpack-4-upgrade-guide"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&title=webpack-4-upgrade-guide"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&is_video=false&description=webpack-4-upgrade-guide"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=webpack-4-upgrade-guide&body=Check out this article: https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&title=webpack-4-upgrade-guide"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&title=webpack-4-upgrade-guide"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&title=webpack-4-upgrade-guide"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&title=webpack-4-upgrade-guide"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&name=webpack-4-upgrade-guide&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&t=webpack-4-upgrade-guide"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0CJS"><span class="toc-number">1.</span> <span class="toc-text">0CJS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loader%E4%B8%8EPlugin"><span class="toc-number">2.</span> <span class="toc-text">Loader与Plugin</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RIP-CommonsChunkPlugin"><span class="toc-number">3.</span> <span class="toc-text">RIP CommonsChunkPlugin</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        webpack-4-upgrade-guide
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">li.li</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2018-03-15T07:53:33.000Z" itemprop="datePublished">2018-03-15</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/webpack/" rel="tag">webpack</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p><strong>2018-04-09更新</strong><br><a href="https://github.com/webpack-contrib/mini-css-extract-plugin" target="_blank" rel="noopener">mini-css-extract-plugin@^0.4.0</a>支持了<strong>contenthash</strong>（需配合webpack@^4.3.0使用）。</p>
+<p><strong>2018-03-21更新</strong></p>
+<p><a href="https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/749" target="_blank" rel="noopener">etwp决定不再支持webpack@4</a></p>
+<p>webpack 4发布也有一段时间了，虽然官方的文档，升级指南都没有完成，部分插件适配webpack 4的开发也还在进行中，但对于一个资深前端配置工程师，大刀早已饥渴难耐，所以就出一份非官方升(cai)级(keng)指南吧。</p>
+<p><a href="https://github.com/lili21/webpack4-demo" target="_blank" rel="noopener">我没时间看你废话，给我一份配置</a></p>
+<p>webpack 4做了很多改进，我就挑一些我比较关心的点来展开</p>
+<h3 id="0CJS"><a href="#0CJS" class="headerlink" title="0CJS"></a>0CJS</h3><p>随着像<a href="https://github.com/parcel-bundler/parcel" target="_blank" rel="noopener">parcel</a>这样零配置，开箱即用打包工具的流行，被人吐槽难用，难懂，难配置的webpack显然感受到了压力，在4.0的版本中，给部分配置加上了默认值，并引入了<code>mode</code>概念，为开发，及生产环境提供两种不同的默认配置，极大的简化了webpack的配置。在4.0版本中，你甚至不需要配置，即可使用(虽然没什么用)。</p>
+<p><strong>默认值</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  entry: <span class="string">'src/'</span>,</span><br><span class="line">  outpu: &#123;</span><br><span class="line">    filename: <span class="string">'[name].js'</span>,</span><br><span class="line">    path: <span class="string">'dist/'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>webpack 4中引入的<code>mode</code>是必需设置的（如果没有设置，会报警），你可以通过<code>webpack --mode ...</code>来设置，也可以通过<code>webpack.config.js</code>来设置。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  mode: <span class="string">'development'</span> <span class="comment">// development || production</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>mode</code>也是为了简化配置项，不同的<code>mode</code>会为我们设置不同的默认配置，就不需要我们一个个去分别配置了。</p>
+<p>开发模式更关注开发体验：</p>
+<ul>
+<li>更利于浏览器调试</li>
+<li>更快的增量编译速度</li>
+<li>更详细的报错消息</li>
+</ul>
+<p>生成模式更关注用户体验：</p>
+<ul>
+<li>性能（文件大小，运行性能，打包速度）</li>
+</ul>
+<p>详细的说明可以参考<a href="https://medium.com/webpack/webpack-4-mode-and-optimization-5423a6bc597a" target="_blank" rel="noopener">这篇文章</a></p>
+<h3 id="Loader与Plugin"><a href="#Loader与Plugin" class="headerlink" title="Loader与Plugin"></a>Loader与Plugin</h3><p>loader的其实没有什么变化，我用到的loader升级到最新版都可以直接用，有些甚至不用升级。变化比较大的是plugin。<br>webpack 4使用了新的插件体系，导致之前的插件基本都是需要改的，那么这些插件目前对webpack 4的支持如何呢？</p>
+<ul>
+<li><p><a href="mailto:extract-text-webpack-plugin@4.0.0-beta.0" target="_blank" rel="noopener">extract-text-webpack-plugin@4.0.0-beta.0</a></p>
+<p>  <a href="https://github.com/webpack-contrib/extract-text-webpack-plugin/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aopen+4.0.0-beta.0" target="_blank" rel="noopener">issue list</a> 可以看到，问题还是比较多的。<br>  我自己遇到的问题是，在配合<code>splitChunks</code>(后面会讲到)时，会生成0kb的css文件，<a href="https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/738" target="_blank" rel="noopener">issue</a>。<br>  对于这个问题，我已经提了<a href="https://github.com/webpack-contrib/extract-text-webpack-plugin/pull/746" target="_blank" rel="noopener">PR</a>了。</p>
+<p>  官方出了一个<a href="github.com/webpack-contrib/mini-css-extract-plugin">mini-css-extract-plugin</a>作为替代品</p>
+</li>
+<li><p><a href="mailto:html-webpack-plugin@3.0.0" target="_blank" rel="noopener">html-webpack-plugin@3.0.0</a>+</p>
+<p>  这个插件目前是支持webpack 4的，只是他自己的插件不一定支持，这个在升级的时候需要注意</p>
+</li>
+<li><p>uglifyjs-webpack-plugin</p>
+<p>  这个插件目前也是支持webpack 4的。其实在<code>production</code>模式下，代码是默认会压缩的。当然，如果你有更细致的自定义需求，就可以用到这个插件。</p>
+</li>
+</ul>
+<h3 id="RIP-CommonsChunkPlugin"><a href="#RIP-CommonsChunkPlugin" class="headerlink" title="RIP CommonsChunkPlugin"></a>RIP CommonsChunkPlugin</h3><p>上面讲到的都是一些第三方的插件改动，而改动最大，影响也最大的就是webpack 4使用<code>optimization.splitChunks</code>替代了<code>CommonsChunkPlugin</code>，并且直接移除了<code>CommonsChunkPlugin</code>，所以这部分迁移起来比较麻烦。</p>
+<p>对于各位配置工程师来说，<code>CommonsChunkPlugin</code>应该是很熟悉了，我们主要用他来抽取代码中的共用部分，<code>webpack runtime</code>之类的代码，结合<code>chunkhash</code>，实现最好的缓存策略。而这一部分，也是webpack支持的比较差的，这个几乎三岁的<a href="https://github.com/webpack/webpack/issues/1315" target="_blank" rel="noopener">issue</a>，至今还没有解决。对这个问题比较感兴趣的，可以拜读一下这篇<a href="https://medium.com/webpack/predictable-long-term-caching-with-webpack-d3eee1d3fa31" target="_blank" rel="noopener">文章</a>。我这里就不展开了，直接贴一份<code>CommonsChunkPlugin</code>时代解决这个问题的配置</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  ...</span><br><span class="line">  plugins: [</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">new</span> webpack.HashedModuleIdsPlugin(),</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> webpack.NamedChunksPlugin(<span class="function"><span class="params">chunk</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (chunk.name) &#123;</span><br><span class="line">        <span class="keyword">return</span> chunk.name</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'faceless-chunk'</span> <span class="comment">// a chunk has no name</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;),</span><br><span class="line"></span><br><span class="line">    <span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">      name: <span class="string">'vendor'</span>,</span><br><span class="line">      minChunks (<span class="built_in">module</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> (</span><br><span class="line">          <span class="built_in">module</span>.resource &amp;&amp;</span><br><span class="line">          /\.js$/.test(<span class="built_in">module</span>.resource) &amp;&amp;</span><br><span class="line">          /node_modules/.test(<span class="built_in">module</span>.resource)</span><br><span class="line">        )</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;),</span><br><span class="line"></span><br><span class="line">    <span class="comment">// extract webpack runtime and module manifest to its own file in order to</span></span><br><span class="line">    <span class="comment">// prevent vendor hash from being updated whenever app bundle is updated</span></span><br><span class="line">    <span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">      name: <span class="string">'runtime'</span>,</span><br><span class="line">      minChunks: <span class="literal">Infinity</span></span><br><span class="line">    &#125;),</span><br><span class="line"></span><br><span class="line">    <span class="comment">// extracts shared chunks from code splitted chunks</span></span><br><span class="line">    <span class="comment">// https://github.com/webpack/webpack/issues/4392</span></span><br><span class="line">    <span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">      name: <span class="string">'app'</span>,</span><br><span class="line">      <span class="keyword">async</span>: <span class="string">'async-vendor'</span>,</span><br><span class="line">      children: <span class="literal">true</span>,</span><br><span class="line">      minChunks: <span class="number">3</span></span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>升级到webpack 4后的配置</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  ...</span><br><span class="line">  optimization: &#123;</span><br><span class="line">    splitChunks: &#123;</span><br><span class="line">      cacheGroups: &#123;</span><br><span class="line">        vendors: &#123;</span><br><span class="line">          test: <span class="function"><span class="params">chunk</span> =&gt;</span> (</span><br><span class="line">            chunk.resource &amp;&amp;</span><br><span class="line">            /\.js$/.test(chunk.resource) &amp;&amp;</span><br><span class="line">            /node_modules/.test(chunk.resource)</span><br><span class="line">          ),</span><br><span class="line">          chunks: <span class="string">'initial'</span>,</span><br><span class="line">          name: <span class="string">'vendors'</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">'async-vendors'</span>: &#123;</span><br><span class="line">          test: <span class="regexp">/[\\/]node_modules[\\/]/</span>,</span><br><span class="line">          minChunks: <span class="number">2</span>,</span><br><span class="line">          chunks: <span class="string">'async'</span>,</span><br><span class="line">          name: <span class="string">'async-vendors'</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    runtimeChunk: &#123; <span class="attr">name</span>: <span class="string">'runtime'</span> &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  plugins: [</span><br><span class="line">    <span class="keyword">new</span> webpack.HashedModuleIdsPlugin(),</span><br><span class="line">    <span class="keyword">new</span> webpack.NamedChunksPlugin(<span class="function"><span class="params">chunk</span> =&gt;</span> chunk.name || <span class="string">'faceless-chunk'</span>), <span class="comment">// a chunk has no name!!!</span></span><br><span class="line">    ...</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这份<a href="https://gist.github.com/sokra/1522d586b8e5c0f5072d7565c2bee693" target="_blank" rel="noopener">gist</a>算是一份关于<code>optimization.splitChunks</code>，<code>optimization.runtimeChunk</code>的文档了，感兴趣的同学可以看一下</p>
+<p>迁移时间其实花的挺长的，一方面给webpack提issue，一方面是给wepback插件提issue跟PR。<br>wepback对于issue的反馈还是很快的，上次提的issue，几个小时就给我直接修复了。但是插件就比较慢了，可能issue提了几天才有反馈。<br>总之希望这篇文章能够帮到正在升级和打算升级的同学们。</p>
+<p>最后奉上一份完整的<a href="https://github.com/lili21/webpack4-demo" target="_blank" rel="noopener">webpack 4配置</a>，有问题可以直接在这里repo里提issue。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0CJS"><span class="toc-number">1.</span> <span class="toc-text">0CJS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loader%E4%B8%8EPlugin"><span class="toc-number">2.</span> <span class="toc-text">Loader与Plugin</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RIP-CommonsChunkPlugin"><span class="toc-number">3.</span> <span class="toc-text">RIP CommonsChunkPlugin</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&text=webpack-4-upgrade-guide"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&title=webpack-4-upgrade-guide"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&is_video=false&description=webpack-4-upgrade-guide"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=webpack-4-upgrade-guide&body=Check out this article: https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&title=webpack-4-upgrade-guide"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&title=webpack-4-upgrade-guide"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&title=webpack-4-upgrade-guide"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&title=webpack-4-upgrade-guide"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&name=webpack-4-upgrade-guide&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://lili21.github.io/2018/03/15/webpack-4-upgrade-guide/&t=webpack-4-upgrade-guide"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    li.li
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
