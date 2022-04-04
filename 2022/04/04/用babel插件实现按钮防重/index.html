@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="业务中总是会出现按钮多次点击，导致接口被重复请求的情况。而目前的解决方案，可归纳为以下两种 从组件入手输出一个通用的组件，处理该问题 1234567891011121314151617181920212223242526import React, &amp;#123; useState &amp;#125; from &amp;#x27;react&amp;#x27;;import &amp;#123; Button &amp;#125; fr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用babel插件实现按钮防重">
+<meta property="og:url" content="https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/index.html">
+<meta property="og:site_name" content="li.li">
+<meta property="og:description" content="业务中总是会出现按钮多次点击，导致接口被重复请求的情况。而目前的解决方案，可归纳为以下两种 从组件入手输出一个通用的组件，处理该问题 1234567891011121314151617181920212223242526import React, &amp;#123; useState &amp;#125; from &amp;#x27;react&amp;#x27;;import &amp;#123; Button &amp;#125; fr">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-04T07:45:05.000Z">
+<meta property="article:modified_time" content="2022-04-04T07:45:18.316Z">
+<meta property="article:author" content="li.li">
+<meta property="article:tag" content="babel">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>用babel插件实现按钮防重</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"><link rel="alternate" href="/atom.xml" title="li.li" type="application/atom+xml">
+</head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2018/07/14/webpack-hash/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&text=用babel插件实现按钮防重"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&title=用babel插件实现按钮防重"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&is_video=false&description=用babel插件实现按钮防重"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=用babel插件实现按钮防重&body=Check out this article: https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&title=用babel插件实现按钮防重"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&title=用babel插件实现按钮防重"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&title=用babel插件实现按钮防重"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&title=用babel插件实现按钮防重"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&name=用babel插件实现按钮防重&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&t=用babel插件实现按钮防重"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E7%BB%84%E4%BB%B6%E5%85%A5%E6%89%8B"><span class="toc-number">1.</span> <span class="toc-text">从组件入手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E8%AF%B7%E6%B1%82%E5%BA%93%E5%85%A5%E6%89%8B"><span class="toc-number">2.</span> <span class="toc-text">从请求库入手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#babel%E6%8F%92%E4%BB%B6%E6%96%B9%E6%A1%88"><span class="toc-number">3.</span> <span class="toc-text">babel插件方案</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        用babel插件实现按钮防重
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">li.li</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-04-04T07:45:05.000Z" itemprop="datePublished">2022-04-04</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/babel/" rel="tag">babel</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p>业务中总是会出现按钮多次点击，导致接口被重复请求的情况。而目前的解决方案，可归纳为以下两种</p>
+<h3 id="从组件入手"><a href="#从组件入手" class="headerlink" title="从组件入手"></a>从组件入手</h3><p>输出一个通用的组件，处理该问题</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span>, &#123; useState &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; <span class="title class_">Button</span> &#125; <span class="keyword">from</span> <span class="string">&#x27;antd&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="title function_">PromiseButton</span>(<span class="params">props</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> [loading, setLoading] = <span class="title function_">useState</span>(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">onClick</span> = <span class="keyword">async</span> (<span class="params">e</span>) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> props.<span class="property">onClick</span> === <span class="string">&#x27;function&#x27;</span>) &#123;</span><br><span class="line">      <span class="title function_">setLoading</span>(<span class="literal">true</span>);</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">await</span> props.<span class="title function_">onClick</span>(e);</span><br><span class="line">      &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="title function_">setLoading</span>(<span class="literal">false</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">Button</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      &#123;<span class="attr">...props</span>&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      <span class="attr">loading</span>=<span class="string">&#123;loading</span> || <span class="attr">props.loading</span>&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      <span class="attr">disabled</span>=<span class="string">&#123;loading</span> || <span class="attr">props.disabled</span>&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      <span class="attr">onClick</span>=<span class="string">&#123;onClick&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">    /&gt;</span></span></span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在使用到Button的地方，统一用PromiseButton组件替代即可</p>
+<p>这个方案的问题在于</p>
+<ol>
+<li>场景比较局限，实际业务中并不是只有按钮点击才会触发接口请求</li>
+<li>比较难统一，如何保证其他人，其他团队会用这个组件？也许可以用eslint做提示，但比较难推广</li>
+</ol>
+<h3 id="从请求库入手"><a href="#从请求库入手" class="headerlink" title="从请求库入手"></a>从请求库入手</h3><p>一般团队里都会有统一的请求库，可以从请求库入手。举个最简单的例子</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> set = <span class="keyword">new</span> <span class="title class_">Set</span>();</span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">post</span>(<span class="params">url, data</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> key = <span class="string">`<span class="subst">$&#123;url&#125;</span>_<span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(data)&#125;</span>`</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (set.<span class="title function_">has</span>(key)) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  set.<span class="title function_">add</span>(key)</span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="title function_">fetch</span>(url, &#123;</span><br><span class="line">    <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">    <span class="attr">headers</span>: &#123;</span><br><span class="line">      <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(data)</span><br><span class="line">  &#125;</span><br><span class="line">  set.<span class="title function_">delete</span>(key)</span><br><span class="line">  <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以请求路径和请求参数作为一个接口请求的唯一标识，利用Set做接口请求状态的管理</p>
+<p>这个方案的问题在于无法对多个请求做防重</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">React</span> <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> post <span class="keyword">from</span> <span class="string">&#x27;./post&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">Test</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="title function_">handleClick</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">const</span> a = <span class="keyword">await</span> <span class="title function_">post</span>(<span class="string">&#x27;/a&#x27;</span>, &#123;&#125;);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">const</span> b = <span class="keyword">await</span> <span class="title function_">post</span>(<span class="string">&#x27;/b&#x27;</span>, &#123;&#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">button</span> <span class="attr">onClick</span>=<span class="string">&#123;handleClick&#125;</span>&gt;</span>接口请求<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>比如以上这种情况，预期的是对整个<code>handleClick</code>做防重，在<code>/a</code>, <code>/b</code> 接口都完成前，都不再发送请求。但请求库只能支持对<code>/a</code>和<code>/b</code>做单独的防重</p>
+<h3 id="babel插件方案"><a href="#babel插件方案" class="headerlink" title="babel插件方案"></a>babel插件方案</h3><p>在一次思考babel插件处理async函数的过程中，我突然想到，能不能用类似的思路，给代码里的每一个async方法，都加一个防重处理呢？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 源代码</span></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">onClick</span> = <span class="keyword">async</span> (<span class="params"></span>) =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;async function&#x27;</span>)</span><br><span class="line">  <span class="keyword">await</span> <span class="title function_">post</span>(<span class="string">&#x27;/a&#x27;</span>, &#123;&#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 经babel插件处理后的代码</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">_lock$</span>(<span class="params">fn</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> locking = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> _lockedFn$ = <span class="keyword">async</span> <span class="keyword">function</span> (<span class="params">...args</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (locking) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      locking = <span class="literal">true</span>;</span><br><span class="line">      <span class="keyword">const</span> r = <span class="keyword">await</span> fn.<span class="title function_">apply</span>(<span class="variable language_">this</span>, args);</span><br><span class="line">      <span class="keyword">return</span> r;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      <span class="keyword">throw</span> e;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      locking = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> _lockedFn$;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> onClick = <span class="title function_">_lock$</span>(<span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;async function&#x27;</span>)</span><br><span class="line">  <span class="keyword">await</span> <span class="title function_">post</span>(<span class="string">&#x27;/a&#x27;</span>, &#123;&#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>这个方案很好的解决了原来两个方案的问题</p>
+<ol>
+<li>对开发者无感，业务开发不需要想着每个用Button的地方都要用PromiseButton替代</li>
+<li>覆盖到所有使用async函数的地方</li>
+<li>支持对多个请求做防重</li>
+</ol>
+<p>插件源代码奉上<a target="_blank" rel="noopener" href="https://github.com/lili21/babel-plugin-async-lock">babel-plugin-async-lock</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E7%BB%84%E4%BB%B6%E5%85%A5%E6%89%8B"><span class="toc-number">1.</span> <span class="toc-text">从组件入手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E8%AF%B7%E6%B1%82%E5%BA%93%E5%85%A5%E6%89%8B"><span class="toc-number">2.</span> <span class="toc-text">从请求库入手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#babel%E6%8F%92%E4%BB%B6%E6%96%B9%E6%A1%88"><span class="toc-number">3.</span> <span class="toc-text">babel插件方案</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&text=用babel插件实现按钮防重"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&title=用babel插件实现按钮防重"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&is_video=false&description=用babel插件实现按钮防重"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=用babel插件实现按钮防重&body=Check out this article: https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&title=用babel插件实现按钮防重"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&title=用babel插件实现按钮防重"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&title=用babel插件实现按钮防重"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&title=用babel插件实现按钮防重"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&name=用babel插件实现按钮防重&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/&t=用babel插件实现按钮防重"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
