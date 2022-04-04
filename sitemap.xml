@@ -2,6 +2,15 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://lili21.github.io/2022/04/04/remix%E6%A1%86%E6%9E%B6%E5%88%9D%E4%BD%93%E9%AA%8C/</loc>
+    
+    <lastmod>2022-04-04</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://lili21.github.io/2022/04/04/%E7%94%A8babel%E6%8F%92%E4%BB%B6%E5%AE%9E%E7%8E%B0%E6%8C%89%E9%92%AE%E9%98%B2%E9%87%8D/</loc>
     
     <lastmod>2022-04-04</lastmod>
@@ -159,6 +168,13 @@
   
   <url>
     <loc>https://lili21.github.io/tags/css/</loc>
+    <lastmod>2022-04-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lili21.github.io/tags/remix-react/</loc>
     <lastmod>2022-04-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
